@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT X - Agentenmission</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+        .card {
+            background-color: #1e293b;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 480px;l
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+        h1 {
+            font-size: 1.5rem;
+            color: #38bdf8;
+            margin-top: 0;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+        .badge-rot { background-color: #ef4444; color: white; }
+        .badge-blau { background-color: #3b82f6; color: white; }
+        
+        .question {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #38bdf8;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background-color: #0f172a;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #38bdf8;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #38bdf8;
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #0284c7;
+            color: white;
+        }
+        .feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-weight: bold;
+            text-align: center;
+        }
+        .feedback.success {
+            background-color: #059669;
+            color: white;
+        }
+        .feedback.error {
+            background-color: #dc2626;
+            color: white;
+        }
+        .next-hint {
+            margin-top: 15px;
+            background-color: #1e293b;
+            border: 1px dashed #38bdf8;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="badge" class="badge"></div>
+    <h1 id="title">MISSION CONTROL</h1>
+    
+    <div id="content">
+        <div id="question" class="question">Station wird geladen...</div>
+        <form id="quiz-form" onsubmit="checkAnswer(event)">
+            <input type="text" id="answer-input" placeholder="Antwort eingeben..." autocomplete="off" required>
+            <button type="submit">Antwort überprüfen</button>
+        </form>
+        <div id="feedback" class="feedback"></div>
+        <div id="next-hint" class="next-hint"></div>
+    </div>
+</div>
+
+<script>
+    // DATENBANK DER STATIONEN & ANTWORTEN
+    const stations = {
+        'rot': {
+            1: {
+                task: "WILLKOMMEN AGENTEN (TEAM ROT)!<br>Wie lautet das Gründungsjahr unserer Geheimagentur?",
+                answers: ["2009", "09"],
+                hint: "Sucht den nächsten QR-Code beim großen Baum im Garten!"
+            },
+            2: {
+                task: "STATION 2:<br>Welches Element hat das Chemische Symbol 'Au'?",
+                answers: ["gold"],
+                hint: "Begebt euch zur Garage unter der gelben Lampe."
+            },
+            3: {
+                task: "STATION 3:<br>Wie viele Beine hat eine Spinne?",
+                answers: ["8", "acht"],
+                hint: "Der nächste QR-Code klebt an der Unterseite der Parkbank."
+            },
+            4: {
+                task: "STATION 4:<br>Löst das Rätsel: Was wird nass, während es trocknet?",
+                answers: ["handtuch", "das handtuch", "ein handtuch"],
+                hint: "Sucht in der Nähe des Vogelhauses."
+            },
+            5: {
+                task: "STATION 5:<br>Wie lautet das Passwort aus der Geheimnachricht?",
+                answers: ["007", "topsecret"],
+                hint: "Geht zur Tischtennisplatte."
+            },
+            6: {
+                task: "STATION 6:<br>Rechne: 15 x 4 - 10 =",
+                answers: ["50"],
+                hint: "Fast geschafft! Der letzte Hinweis wartet an der Haustür."
+            },
+            7: {
+                task: "FINALE STATION:<br>Wie heißt das Geburtstagskind mit zweitem Namen?",
+                answers: ["alexander", "max"], // Hier anpassen!
+                hint: "🎉 GRATULATION TEAM ROT! Ihr habt die Mission erfolgreich abgeschlossen! Meldet euch bei der Missionsleitung für euren Preis!"
+            }
+        },
+        'blau': {
+            1: {
+                task: "WILLKOMMEN AGENTEN (TEAM BLAU)!<br>Wie lautet die Hausnummer des Hauptquartiers?",
+                answers: ["12", "12a"],
+                hint: "Sucht den nächsten QR-Code hinter dem Holzschuppen!"
+            },
+            2: {
+                task: "STATION 2:<br>Welcher Planet ist der Sonne am nächsten?",
+                answers: ["merkur"],
+                hint: "Der nächste Hinweis ist nahe beim Brunnen/Teich."
+            },
+            3: {
+                task: "STATION 3:<br>Wie viele Monate haben 28 Tage?",
+                answers: ["12", "alle", "alle 12"],
+                hint: "Schaut unter die rote Gartenbank."
+            },
+            4: {
+                task: "STATION 4:<br>Löst den Code: A=1, B=2, C=3... Was ergibt 3-1-2-5?",
+                answers: ["cabe"],
+                hint: "Geht vor zum Hoftor."
+            },
+            5: {
+                task: "STATION 5:<br>In welchem Land stehen die Pyramiden von Gizeh?",
+                answers: ["ägypten", "aegypten"],
+                hint: "Der QR-Code befindet sich am Fahrradständer."
+            },
+            6: {
+                task: "STATION 6:<br>Rechne: 100 / 4 + 15 =",
+                answers: ["40"],
+                hint: "Letzte Etappe! Der finale Code ist am Briefkasten."
+            },
+            7: {
+                task: "FINALE STATION:<br>Wie alt wird das Geburtstagskind heute?",
+                answers: ["15", "fünfzehn", "fuenfzehn"],
+                hint: "🎉 GRATULATION TEAM BLAU! Ihr habt die Mission erfolgreich abgeschlossen! Meldet euch bei der Missionsleitung für euren Preis!"
+            }
+        }
+    };
+
+    // URL-PARAMETER AUSLESEN (z. B. ?team=rot&station=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const team = (urlParams.get('team') || 'rot').toLowerCase();
+    const stationId = parseInt(urlParams.get('station')) || 1;
+
+    // GUI INITIALISIEREN
+    const currentData = stations[team] && stations[team][stationId];
+    
+    const badgeEl = document.getElementById('badge');
+    badgeEl.textContent = `Team ${team.toUpperCase()} • Station ${stationId}`;
+    badgeEl.classList.add(team === 'rot' ? 'badge-rot' : 'badge-blau');
+
+    if (currentData) {
+        document.getElementById('question').innerHTML = currentData.task;
+    } else {
+        document.getElementById('question').innerHTML = "Fehler: Ungültige Station oder ungültiges Team!";
+        document.getElementById('quiz-form').style.display = 'none';
+    }
+
+    // ANTWORT PRÜFEN
+    function checkAnswer(e) {
+        e.preventDefault();
+        const userInput = document.getElementById('answer-input').value.trim().toLowerCase();
+        const feedbackEl = document.getElementById('feedback');
+        const nextHintEl = document.getElementById('next-hint');
+
+        if (currentData.answers.includes(userInput)) {
+            feedbackEl.className = "feedback success";
+            feedbackEl.textContent = "✓ CODE KORREKT! ZUGRIFF GEWÄHRT.";
+            feedbackEl.style.display = "block";
+            
+            nextHintEl.innerHTML = `<strong>NÄCHSTER HINWEIS:</strong><br>${currentData.hint}`;
+            nextHintEl.style.display = "block";
+            
+            // Eingabe deaktivieren nach Erfolg
+            document.getElementById('answer-input').disabled = true;
+            document.querySelector('button').style.display = 'none';
+        } else {
+            feedbackEl.className = "feedback error";
+            feedbackEl.textContent = "✕ ZUGRIFF VERWEIGERT! Falscher Code.";
+            feedbackEl.style.display = "block";
+        }
+    }
+</script>
+
+</body>
+</html>

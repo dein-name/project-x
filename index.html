@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROJECT X</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f3f4f6;
+  margin:0;
+  padding:18px;
+  color:#111827
+}
+
+main{
+  max-width:720px;
+  margin:auto;
+  background:white;
+  padding:25px;
+  border-radius:20px;
+  box-shadow:0 6px 30px #0001
+}
+
+.badge{
+  display:inline-block;
+  background:#111;
+  color:white;
+  padding:8px 13px;
+  border-radius:20px;
+  font-weight:bold
+}
+
+.task{
+  background:#eef2ff;
+  padding:16px;
+  border-radius:12px;
+  margin:18px 0;
+  line-height:1.45
+}
+
+.proof{
+  background:#fff7ed;
+  padding:16px;
+  border-radius:12px;
+  margin:16px 0
+}
+
+input,button{
+  width:100%;
+  padding:14px;
+  box-sizing:border-box;
+  margin-top:10px;
+  border-radius:10px;
+  font-size:16px
+}
+
+input{
+  border:1px solid #9ca3af
+}
+
+button{
+  background:#111;
+  color:white;
+  border:0;
+  font-weight:bold
+}
+
+button:disabled{
+  opacity:.5
+}
+
+.ok{
+  background:#dcfce7;
+  padding:16px;
+  margin-top:15px;
+  border-radius:12px;
+  line-height:1.5
+}
+
+.bad{
+  background:#fee2e2;
+  padding:16px;
+  margin-top:15px;
+  border-radius:12px;
+  line-height:1.5
+}
+
+small{color:#4b5563}
+h1{line-height:1.15}
+</style>
+</head>
+
+<body>
+
+<main id="app">Lade…</main>
+
+<script>
+
+const M = {
+
+"rot":[
+
+{
+emoji:"🎬",
+title:"Eingefrorene Popband",
+task:"Stellt euch als eingefrorene Popband auf und macht ein Gruppenfoto.",
+kind:"foto",
+riddle:"Was hat Seiten, einen Rücken, aber keinen Bauch?",
+hash:"f4a4fb00137111b69650a0931b1df1b2bdca482a6a486fc29065498572567ddb",
+next:"📚 Geht ins Kinderzimmer. Sucht dort, wo Geschichten zwischen zwei Deckeln wohnen. Dort findet ihr euren nächsten QR-Code.",
+station:1
+},
+
+{
+emoji:"📺",
+title:"Luxus-Werbung",
+task:"Dreht ein maximal 10 Sekunden langes Video: Verkauft eine ganz normale Trinkflasche wie ein Luxusprodukt für 1 Million Euro.",
+kind:"video",
+riddle:"Ich habe vier Beine, kann aber nicht laufen. Was bin ich?",
+hash:"f6ca263cba71287abd2ef958a1044353cb42965579bdc56dc821631b37601c28",
+next:"🍽️ Geht in die Küche. Sucht dort, wo man gemeinsam essen kann. Dort wartet QR-Code 3.",
+station:2
+},
+
+{
+emoji:"🚨",
+title:"Breaking News",
+task:"Dreht ein kurzes Nachrichtenvideo: „Eilmeldung! Jugendliche beim Kuchenessen erwischt!“ Mindestens 2 Reporter müssen vorkommen.",
+kind:"video",
+riddle:"Ich habe einen Stamm und viele Äste, aber keine Arme. Was bin ich?",
+hash:"86c9c198f7df1f0e6633e21a12bca14730a27070bbcc742fec8b2b14b44a0126",
+next:"🌳 Raus in den Garten! Sucht bei einem sicheren Baum. Dort ist der nächste QR-Code versteckt.",
+station:3
+},
+
+{
+emoji:"🕵️",
+title:"Geheimagenten",
+task:"Macht draußen ein möglichst übertriebenes Geheimagenten-Gruppenfoto.",
+kind:"foto",
+riddle:"Wie heißt der große offene Platz bei der Kirche?",
+hash:"95ac700677cc82442d93cc71e3a0ff7eac646ebbb636f97b35aeff7f711fb216",
+next:"⛪ Geht zum Kirchplatz. Sucht dort nur an dem mit der Spielleitung vereinbarten sicheren Punkt nach dem nächsten QR-Code.",
+station:4
+},
+
+{
+emoji:"🎵",
+title:"Albumcover am Spielplatz",
+task:"Geht zum Spielplatz und macht ein Foto, das wie das Cover einer völlig übertrieben coolen Band aussieht. Alle 5 müssen drauf sein.",
+kind:"foto",
+riddle:"Wo gibt es Rutsche, Schaukel oder Klettergeräte?",
+hash:"5b7fc9e0e8860b55e1a47d5a49804db34506540247d0dd36a316aae5ab8371d1",
+next:"🛝 Bleibt am Spielplatz! Der nächste QR-Code wartet dort am vorher festgelegten sicheren Versteck.",
+station:5
+},
+
+{
+emoji:"🐌",
+title:"Zeitlupen-Drama",
+task:"Dreht draußen ein maximal 10 Sekunden langes Zeitlupen-Video: Eine Person verliert dramatisch einen imaginären Gegenstand, die anderen reagieren völlig übertrieben.",
+kind:"video",
+riddle:"Wo kann man draußen sitzen, ohne im Garten zu sein, und trotzdem direkt am Haus bleiben?",
+hash:"b8eedf4dec6b9cc35262e8c3b64c0c27015eca680e206ed362671563a9155664",
+next:"🏠 Zurück zum Haus! Sucht auf dem Balkon am sicheren Versteck nach dem nächsten QR-Code.",
+station:6
+},
+
+{
+emoji:"🔎",
+title:"Foto-Schnitzeljagd",
+task:"Macht EIN Foto, auf dem drei Dinge zu sehen sind: etwas Rundes, etwas Grünes und etwas mit einer Zahl.",
+kind:"foto",
+riddle:"Wo findet man Kühlschrank, Herd und Spüle?",
+hash:"3f45bd1c84f44d6537b44ea64a050fb4de3c755fbee1dd5ca2bf88e1d2e9a882",
+next:"🍳 Geht in die Küche. Dort wartet der nächste QR-Code am vereinbarten Versteck.",
+station:7
+},
+
+{
+emoji:"📣",
+title:"Stadionsprecher",
+task:"Dreht ein maximal 10 Sekunden langes Video mit einem Stadionspruch für das Geburtstagskind. Alle müssen mitmachen.",
+kind:"video",
+riddle:"Welcher Raum verbindet bei euch mehrere Zimmer miteinander?",
+hash:"1ff0794f96d2ae98a05987baf40ba8bdbde7cef3374894f8a0e1ac656cfbf6ac",
+next:"🚪 Sucht im Flur am vorher festgelegten Versteck nach dem nächsten QR-Code.",
+station:8
+},
+
+{
+emoji:"🗿",
+title:"Lebende Statue",
+task:"Geht noch einmal nach draußen und macht ein Gruppenfoto als „lebende Statue“. Niemand darf normal stehen.",
+kind:"foto",
+riddle:"Wie heißt der Raum, in dem Sofa oder Couch stehen?",
+hash:"234b66dd8908a621e2c1edd1c1374f66d49dabe0a9a1897e41736a9fb871e93e",
+next:"🛋️ Zurück ins Wohnzimmer! Sucht dort am sicheren Versteck nach eurem LETZTEN QR-Code.",
+station:9
+},
+
+{
+emoji:"🏆",
+title:"DAS GROSSE FINALE",
+task:"Dreht ein maximal 10 Sekunden langes Sieger-Video: Ihr habt PROJECT X geschafft und feiert wie nach einem WM-Finale.",
+kind:"video",
+riddle:"Wie alt wird das Geburtstagskind heute?",
+hash:"e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+next:"🏆 MISSION ERFÜLLT! Ihr habt PROJECT X geschafft! Geht jetzt gemeinsam zur Spielleitung und zeigt diese Meldung. Euer geheimes Finalwort lautet: ROTER BLITZ ⚡",
+station:10
+}
+
+],
+
+
+"blau":[
+
+{
+emoji:"📸",
+title:"Der Superfund",
+task:"Stellt euch wie Entdecker hin, die gerade etwas unglaublich Wichtiges gefunden haben. Macht ein Gruppenfoto.",
+kind:"foto",
+riddle:"Darauf schläft man nachts. Was ist es?",
+hash:"dd70e05faedda153d594b13cda8682ba5dbe1e6e82b7381729126b3af594d49c",
+next:"🛏️ Geht ins Kinderzimmer und sucht am oder unter dem Bett. Dort wartet euer nächster QR-Code.",
+station:1
+},
+
+{
+emoji:"🥄",
+title:"Der Schatzlöffel",
+task:"Dreht ein maximal 10 Sekunden langes Video: Präsentiert einen Löffel wie den wertvollsten Schatz der Welt.",
+kind:"video",
+riddle:"Wo wachsen Gras, Blumen oder Sträucher direkt am Haus?",
+hash:"af2aa14a0dd1c45603625794d73e3cad49e717cb10f0482f498f688ffaf51164",
+next:"🌿 Raus in den Garten! Sucht dort am vorher festgelegten sicheren Versteck nach QR-Code 3.",
+station:2
+},
+
+{
+emoji:"🔤",
+title:"Menschen-Buchstabe",
+task:"Bildet mit euren Körpern gemeinsam einen Buchstaben und macht ein Foto davon.",
+kind:"foto",
+riddle:"Darauf kann man sitzen. Vier Beine sind typisch. Was ist es?",
+hash:"b4378eab56891d9d53ee02c0d6770864dcee7ca112f0de2493e4a959e62ad710",
+next:"🪑 Geht ins Wohnzimmer und sucht unter oder hinter dem vereinbarten Stuhl nach dem nächsten QR-Code.",
+station:3
+},
+
+{
+emoji:"💃",
+title:"Dramatischer Tanz",
+task:"Dreht draußen ein maximal 10 Sekunden langes Video mit einem völlig übertriebenen Gruppentanz.",
+kind:"video",
+riddle:"Wie heißt der große offene Platz bei der Kirche?",
+hash:"95ac700677cc82442d93cc71e3a0ff7eac646ebbb636f97b35aeff7f711fb216",
+next:"⛪ Geht zum Kirchplatz. Sucht dort nur am vorher mit der Spielleitung vereinbarten sicheren Punkt.",
+station:4
+},
+
+{
+emoji:"🎬",
+title:"Action am Spielplatz",
+task:"Dreht am Spielplatz ein maximal 10 Sekunden langes Actionvideo in Zeitlupe. Kein Klettern an gefährlichen Stellen – nur Schauspiel!",
+kind:"video",
+riddle:"Wo gibt es Rutsche, Schaukel oder Klettergeräte?",
+hash:"5b7fc9e0e8860b55e1a47d5a49804db34506540247d0dd36a316aae5ab8371d1",
+next:"🛝 Bleibt am Spielplatz! Dort wartet am vereinbarten sicheren Versteck der nächste QR-Code.",
+station:5
+},
+
+{
+emoji:"❤️",
+title:"Herzenssuche",
+task:"Findet draußen etwas, das wie ein Herz aussieht, und macht ein Foto mit eurem Team daneben.",
+kind:"foto",
+riddle:"Wo kann man draußen sitzen, ohne im Garten zu sein, und trotzdem direkt am Haus bleiben?",
+hash:"b8eedf4dec6b9cc35262e8c3b64c0c27015eca680e206ed362671563a9155664",
+next:"🏠 Zurück zum Haus! Sucht auf dem Balkon am sicheren Versteck nach dem nächsten QR-Code.",
+station:6
+},
+
+{
+emoji:"🦸",
+title:"Unnötige Superkräfte",
+task:"Dreht ein maximal 10 Sekunden langes Video. Jede Person nennt eine völlig unnötige Superkraft, zum Beispiel: „Ich kann Toast exakt 2 cm hoch springen lassen.“",
+kind:"video",
+riddle:"Wo findet man Kühlschrank, Herd und Spüle?",
+hash:"3f45bd1c84f44d6537b44ea64a050fb4de3c755fbee1dd5ca2bf88e1d2e9a882",
+next:"🍳 Geht in die Küche und sucht dort am vereinbarten Versteck nach dem nächsten QR-Code.",
+station:7
+},
+
+{
+emoji:"🌈",
+title:"Drei-Farben-Challenge",
+task:"Macht EIN Gruppenfoto draußen, auf dem zusätzlich drei Gegenstände in drei verschiedenen Farben zu sehen sind.",
+kind:"foto",
+riddle:"Welcher Raum verbindet bei euch mehrere Zimmer miteinander?",
+hash:"1ff0794f96d2ae98a05987baf40ba8bdbde7cef3374894f8a0e1ac656cfbf6ac",
+next:"🚪 Sucht im Flur am vorher festgelegten Versteck nach dem nächsten QR-Code.",
+station:8
+},
+
+{
+emoji:"🗿",
+title:"Museum bei Nacht",
+task:"Macht draußen ein Foto als verrückte Museumsstatuen. Jede Person braucht eine andere Pose.",
+kind:"foto",
+riddle:"Wie heißt der Raum, in dem Sofa oder Couch stehen?",
+hash:"234b66dd8908a621e2c1edd1c1374f66d49dabe0a9a1897e41736a9fb871e93e",
+next:"🛋️ Zurück ins Wohnzimmer! Sucht dort am sicheren Versteck nach eurem LETZTEN QR-Code.",
+station:9
+},
+
+{
+emoji:"🌟",
+title:"DAS GROSSE FINALE",
+task:"Dreht ein maximal 10 Sekunden langes Video: Ihr kommt als Stars zu einer Weltpremiere und bedankt euch völlig übertrieben bei euren Fans.",
+kind:"video",
+riddle:"Wie alt wird das Geburtstagskind heute?",
+hash:"e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
+next:"🌟 MISSION ERFÜLLT! Ihr habt PROJECT X geschafft! Geht jetzt gemeinsam zur Spielleitung und zeigt diese Meldung. Euer geheimes Finalwort lautet: BLAUER STERN ⭐",
+station:10
+}
+
+]};
+
+
+/* Eingaben vereinheitlichen */
+function normalisieren(s){
+return s
+.trim()
+.toLowerCase()
+.replaceAll("ä","ae")
+.replaceAll("ö","oe")
+.replaceAll("ü","ue")
+.replaceAll("ß","ss");
+}
+
+
+/* Lösung verschlüsselt vergleichen */
+async function hash(s){
+let daten = await crypto.subtle.digest(
+"SHA-256",
+new TextEncoder().encode(normalisieren(s))
+);
+
+return [...new Uint8Array(daten)]
+.map(x=>x.toString(16).padStart(2,"0"))
+.join("");
+}
+
+
+/* QR-Parameter auslesen */
+let parameter = new URLSearchParams(location.search);
+
+let team = (parameter.get("team") || "").toLowerCase();
+let station = +parameter.get("station");
+
+let mission = M[team]?.[station-1];
+
+let app = document.querySelector("#app");
+
+
+/* Ungültiger QR-Code */
+if(!mission){
+
+app.innerHTML = `
+<h1>PROJECT X</h1>
+<p>Dieser QR-Code ist nicht gültig.</p>
+`;
+
+}
+
+
+/* Mission anzeigen */
+else{
+
+let accept =
+mission.kind === "video"
+? "video/*"
+: "image/*";
+
+let label =
+mission.kind === "video"
+? "📹 Video aufnehmen / auswählen"
+: "📸 Foto aufnehmen / auswählen";
+
+
+app.innerHTML = `
+
+<span class="badge">
+${team==="rot" ? "TEAM ROT" : "TEAM BLAU"}
+· MISSION ${mission.station}/10
+</span>
+
+<h1>
+${mission.emoji} ${mission.title}
+</h1>
+
+<div class="task">
+<b>🎯 EURE AUFGABE</b>
+<br><br>
+${mission.task}
+</div>
+
+
+<div class="proof">
+
+<b>${label}</b>
+
+<br><br>
+
+<small>
+⚠️ Ohne Foto oder Video wird der nächste Hinweis NICHT freigeschaltet.
+</small>
+
+<input
+id="proof"
+type="file"
+accept="${accept}"
+capture="environment"
+>
+
+<div id="filename"></div>
+
+</div>
+
+
+<h3>🧩 RÄTSEL</h3>
+
+<p>${mission.riddle}</p>
+
+<input
+id="x"
+autocomplete="off"
+placeholder="Eure Lösung hier eingeben"
+>
+
+<button id="b">
+🔐 MISSION PRÜFEN
+</button>
+
+<div id="r"></div>
+
+`;
+
+
+/* Dateiname anzeigen */
+proof.onchange = () => {
+
+filename.textContent =
+proof.files.length
+? "✅ Beweis ausgewählt: " + proof.files[0].name
+: "";
+
+};
+
+
+/* Mission prüfen */
+b.onclick = async () => {
+
+let ausgabe = document.querySelector("#r");
+
+let richtig =
+await hash(x.value) === mission.hash;
+
+let datei =
+proof.files.length > 0;
+
+
+/* Lösung falsch + kein Beweis */
+if(!richtig && !datei){
+
+ausgabe.className="bad";
+
+ausgabe.innerHTML =
+"❌ Die Lösung stimmt noch nicht UND euer Foto/Video fehlt.";
+
+}
+
+
+/* Lösung falsch */
+else if(!richtig){
+
+ausgabe.className="bad";
+
+ausgabe.innerHTML =
+"❌ Euer Foto/Video ist vorhanden, aber die Lösung stimmt noch nicht. Versucht es erneut!";
+
+}
+
+
+/* Lösung richtig, Beweis fehlt */
+else if(!datei){
+
+ausgabe.className="bad";
+
+ausgabe.innerHTML =
+"✅ Eure Lösung ist richtig!<br><br>📸 Aber euer Beweisfoto/-video fehlt noch. Erst danach bekommt ihr den nächsten Hinweis.";
+
+}
+
+
+/* ALLES RICHTIG */
+else{
+
+ausgabe.className="ok";
+
+ausgabe.innerHTML = `
+
+<b>🎉 MISSION ERFÜLLT!</b>
+
+<br><br>
+
+Ihr habt die Aufgabe erledigt und die richtige Lösung gefunden.
+
+<br><br>
+
+<b>🔎 EUER NÄCHSTER HINWEIS:</b>
+
+<br><br>
+
+${mission.next}
+
+`;
+
+x.disabled=true;
+proof.disabled=true;
+b.disabled=true;
+
+}
+
+};
+
+}
+
+</script>
+
+</body>
+</html>
